@@ -1,16 +1,17 @@
+// Usamos las URL CDN (gstatic) para que funcione en el navegador sin NodeJS.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
   getFirestore, collection, addDoc, query, where, getDocs, updateDoc, doc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Configuración de tu proyecto en Firebase Console (REEMPLAZAR CON TUS DATOS)
+// Tu configuración real de Firebase
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "tu-app.firebaseapp.com",
-  projectId: "tu-app-id",
-  storageBucket: "tu-app.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyBLpdyO43EQaXEuPqAvsiHfWaGkKtSYji0",
+  authDomain: "relojcontrol-7ad3d.firebaseapp.com",
+  projectId: "relojcontrol-7ad3d",
+  storageBucket: "relojcontrol-7ad3d.firebasestorage.app",
+  messagingSenderId: "194296134237",
+  appId: "1:194296134237:web:621227c70f4012fdd6abb4"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -18,7 +19,7 @@ const db = getFirestore(app);
 
 const PASS_ADMIN = "Siipallets2256";
 let personaSeleccionadaDni = null;
-let editandoId = null; // Variable para saber si editamos o creamos personal
+let editandoId = null;
 
 // --- REGISTRO DE SW PARA PWA ---
 if ('serviceWorker' in navigator) {
@@ -52,7 +53,6 @@ window.registrarFichaje = async function() {
   }
 
   try {
-    // 1️⃣ PRIMERO VALIDAMOS SI EL EMPLEADO EXISTE EN LA BASE DE DATOS
     const qPersonal = query(collection(db, "personal"), where("dni", "==", dni));
     const snapPersonal = await getDocs(qPersonal);
 
@@ -65,7 +65,6 @@ window.registrarFichaje = async function() {
 
     const empleadoNombre = snapPersonal.docs[0].data().nombre;
 
-    // 2️⃣ SEGUIMOS CON LA LÓGICA DE REGISTRO DE HORARIOS
     const hoy = new Date().toISOString().split('T')[0];
     const horaActual = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
@@ -73,7 +72,6 @@ window.registrarFichaje = async function() {
     const querySnapshot = await getDocs(qFichaje);
 
     if (querySnapshot.empty) {
-      // INGRESO
       await addDoc(collection(db, "fichajes"), {
         dni: dni,
         nombre: empleadoNombre, 
@@ -84,7 +82,6 @@ window.registrarFichaje = async function() {
       });
       mostrarMensaje(`🟢 INGRESO EXITOSO: ${empleadoNombre} a las ${horaActual}`, "exito");
     } else {
-      // EGRESO
       const docSnap = querySnapshot.docs[0];
       const data = docSnap.data();
 
@@ -189,14 +186,20 @@ window.cerrarModalPersona = function() {
   document.getElementById('modalPersona').classList.add('hidden');
 };
 
+// LÓGICA DE GUARDADO MEJORADA CON FEEDBACK DE CARGA
 window.guardarPersona = async function() {
   const dni = document.getElementById('personaDni').value.trim();
   const nombre = document.getElementById('personaNombre').value.trim();
+  const btnGuardar = document.getElementById('btnGuardarPersona');
 
   if (!dni || !nombre) {
-    alert("Debe completar DNI y Nombre.");
+    alert("⚠️ Debe completar DNI y Nombre.");
     return;
   }
+
+  // Desactivar botón y mostrar estado de carga
+  btnGuardar.innerText = "⏳ Guardando...";
+  btnGuardar.disabled = true;
 
   try {
     if (editandoId) {
@@ -205,18 +208,27 @@ window.guardarPersona = async function() {
     } else {
       const q = query(collection(db, "personal"), where("dni", "==", dni));
       const snap = await getDocs(q);
+      
       if (!snap.empty) {
         alert("❌ Este DNI ya está registrado.");
+        btnGuardar.innerText = "💾 Guardar Empleado";
+        btnGuardar.disabled = false;
         return;
       }
+      
       await addDoc(collection(db, "personal"), { dni: dni, nombre: nombre });
       alert("✅ Empleado agregado correctamente.");
     }
+    
     cerrarModalPersona();
     cargarListaPersonal(); 
   } catch (error) {
     console.error("Error al guardar empleado:", error);
-    alert("Hubo un error al guardar.");
+    alert("❌ Hubo un error al guardar. Revisa que Firebase no te esté bloqueando por Reglas de Seguridad (Rules).");
+  } finally {
+    // Restaurar el estado del botón sin importar lo que pase
+    btnGuardar.innerText = "💾 Guardar Empleado";
+    btnGuardar.disabled = false;
   }
 };
 
@@ -249,7 +261,6 @@ window.generarReporte = async function() {
     let html = "";
     let sumaHoras = 0;
     
-    // Convertimos a array para ordenar por fecha
     let registros = [];
     snap.forEach(docSnap => registros.push(docSnap.data()));
     registros.sort((a, b) => a.fecha.localeCompare(b.fecha));
