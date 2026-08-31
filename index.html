@@ -1,4 +1,38 @@
-<!-- PESTAÑA 2: PERSONAL -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Horario</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <!-- html2pdf.js para exportar reportes a PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <!-- Navegación por Pestañas -->
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('registro')">⏱️ Fichaje</button>
+    <button class="tab-btn" onclick="switchTab('personal')">👥 Personal</button>
+  </nav>
+
+  <!-- PESTAÑA 1: REGISTRO (Fichaje por DNI) -->
+  <section id="tab-registro" class="tab-content active">
+    <div class="card shadow">
+      <h2>Control Horario de Personal</h2>
+      <p>Ingrese su DNI para marcar Ingreso o Egreso</p>
+      
+      <div class="input-group">
+        <input type="text" id="dniInput" placeholder="Ingrese DNI..." autofocus autocomplete="off">
+        <button onclick="registrarFichaje()">Registrar</button>
+      </div>
+
+      <div id="mensajeStatus" class="status-msg"></div>
+    </div>
+  </section>
+
+  <!-- PESTAÑA 2: PERSONAL -->
   <section id="tab-personal" class="tab-content">
     <div class="card">
       <div class="header-flex">
@@ -32,13 +66,56 @@
       
       <div class="form-group">
         <label>DNI:</label>
-        <input type="text" id="personaDni" placeholder="Ej: 30123456">
+        <input type="text" id="personaDni" placeholder="Ej: 30123456" autocomplete="off">
       </div>
       <div class="form-group">
         <label>Nombre y Apellido:</label>
-        <input type="text" id="personaNombre" placeholder="Ej: Juan Pérez">
+        <input type="text" id="personaNombre" placeholder="Ej: Juan Pérez" autocomplete="off">
       </div>
       
       <button class="btn-guardar" onclick="guardarPersona()">💾 Guardar Empleado</button>
     </div>
   </div>
+
+  <!-- MODAL REPORTE Y FILTRO DE FECHAS -->
+  <div id="modalReporte" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="cerrarModalReporte()">&times;</span>
+      <h3>Reporte de Horarios</h3>
+      <p id="reportePersonaNombre"></p>
+
+      <div class="filter-group">
+        <label>Desde: <input type="date" id="fechaDesde"></label>
+        <label>Hasta: <input type="date" id="fechaHasta"></label>
+        <button class="btn-filtrar" onclick="generarReporte()">Filtrar</button>
+      </div>
+
+      <!-- Area que se exporta a PDF -->
+      <div id="areaImpresion" class="report-container">
+        <h4 id="pdfTitulo"></h4>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Ingreso</th>
+              <th>Egreso</th>
+              <th>Total Hs</th>
+            </tr>
+          </thead>
+          <tbody id="reporteBody">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
+        <div class="report-footer" style="margin-top: 15px; text-align: right;">
+          <strong>Total Horas Período: <span id="totalHorasPeriodo">0</span> hs</strong>
+        </div>
+      </div>
+
+      <button class="btn-pdf" onclick="descargarPDF()">📥 Descargar PDF</button>
+    </div>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
