@@ -1,11 +1,11 @@
 {
-  "name": "Control Horario de Personal",
+  "name": "Control Horario",
   "short_name": "Fichador",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f4f6f9",
-  "theme_color": "#0056b3",
-  "description": "Aplicación para registro de ingreso y egreso de empleados",
+  "background_color": "#f7f9fc",
+  "theme_color": "#3182ce",
+  "description": "App moderna para registro de ingresos",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
