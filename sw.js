@@ -1,4 +1,4 @@
-const CACHE_NAME = 'control-horario-v1';
+const CACHE_NAME = 'control-horario-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -21,7 +21,6 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Devuelve el recurso de la caché si lo encuentra, de lo contrario lo busca en red
         return response || fetch(event.request);
       })
   );
