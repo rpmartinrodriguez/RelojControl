@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control Horario</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Tipografía moderna Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <!-- html2pdf.js para exportar reportes a PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
@@ -17,15 +20,15 @@
     <button class="tab-btn" onclick="switchTab('personal')">👥 Personal</button>
   </nav>
 
-  <!-- PESTAÑA 1: REGISTRO (Fichaje por DNI) -->
+  <!-- PESTAÑA 1: REGISTRO -->
   <section id="tab-registro" class="tab-content active">
-    <div class="card shadow">
-      <h2>Control Horario de Personal</h2>
-      <p>Ingrese su DNI para marcar Ingreso o Egreso</p>
+    <div class="card">
+      <h2 class="title">Control Horario</h2>
+      <p class="subtitle">Ingrese su DNI para registrar Ingreso o Egreso</p>
       
       <div class="input-group">
-        <input type="text" id="dniInput" placeholder="Ingrese DNI..." autofocus autocomplete="off">
-        <button onclick="registrarFichaje()">Registrar</button>
+        <input type="text" id="dniInput" placeholder="Nro. de Documento" autofocus autocomplete="off">
+        <button class="btn-primary" onclick="registrarFichaje()">Registrar</button>
       </div>
 
       <div id="mensajeStatus" class="status-msg"></div>
@@ -34,27 +37,29 @@
 
   <!-- PESTAÑA 2: PERSONAL -->
   <section id="tab-personal" class="tab-content">
-    <div class="card">
+    <div class="card card-large">
       <div class="header-flex">
-        <h2>Listado de Personal</h2>
+        <h2 class="title" style="margin: 0;">Listado de Personal</h2>
         <div>
           <span class="badge" id="totalPersonalBadge">Total: 0</span>
-          <button class="btn-agregar" onclick="agregarPersona()">➕ Nuevo Empleado</button>
+          <button class="btn-agregar" onclick="agregarPersona()">+ Nuevo Empleado</button>
         </div>
       </div>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>DNI</th>
-            <th>Nombre</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tablaPersonalBody">
-          <!-- Se llena dinámicamente con JS -->
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>DNI</th>
+              <th>Nombre Completo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPersonalBody">
+            <!-- Se llena dinámicamente con JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -62,10 +67,10 @@
   <div id="modalPersona" class="modal hidden">
     <div class="modal-content">
       <span class="close-btn" onclick="cerrarModalPersona()">&times;</span>
-      <h3 id="modalPersonaTitulo">Agregar Personal</h3>
+      <h3 id="modalPersonaTitulo" class="modal-title">Agregar Personal</h3>
       
       <div class="form-group">
-        <label>DNI:</label>
+        <label>Documento de Identidad (DNI):</label>
         <input type="text" id="personaDni" placeholder="Ej: 30123456" autocomplete="off">
       </div>
       <div class="form-group">
@@ -73,45 +78,58 @@
         <input type="text" id="personaNombre" placeholder="Ej: Juan Pérez" autocomplete="off">
       </div>
       
-      <button id="btnGuardarPersona" class="btn-guardar" onclick="guardarPersona()">💾 Guardar Empleado</button>
+      <button id="btnGuardarPersona" class="btn-guardar" onclick="guardarPersona()">Guardar Empleado</button>
     </div>
   </div>
 
   <!-- MODAL REPORTE Y FILTRO DE FECHAS -->
   <div id="modalReporte" class="modal hidden">
-    <div class="modal-content">
+    <div class="modal-content modal-large">
       <span class="close-btn" onclick="cerrarModalReporte()">&times;</span>
-      <h3>Reporte de Horarios</h3>
-      <p id="reportePersonaNombre"></p>
+      <h3 class="modal-title">Reporte de Horarios</h3>
+      <p id="reportePersonaNombre" class="subtitle"></p>
 
       <div class="filter-group">
-        <label>Desde: <input type="date" id="fechaDesde"></label>
-        <label>Hasta: <input type="date" id="fechaHasta"></label>
-        <button class="btn-filtrar" onclick="generarReporte()">Filtrar</button>
+        <div class="date-input">
+          <label>Desde:</label>
+          <input type="date" id="fechaDesde">
+        </div>
+        <div class="date-input">
+          <label>Hasta:</label>
+          <input type="date" id="fechaHasta">
+        </div>
+        <button class="btn-filtrar" onclick="generarReporte()">Actualizar Filtro</button>
       </div>
 
       <!-- Area que se exporta a PDF -->
       <div id="areaImpresion" class="report-container">
-        <h4 id="pdfTitulo"></h4>
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Ingreso</th>
-              <th>Egreso</th>
-              <th>Total Hs</th>
-            </tr>
-          </thead>
-          <tbody id="reporteBody">
-            <!-- Filas dinámicas -->
-          </tbody>
-        </table>
-        <div class="report-footer" style="margin-top: 15px; text-align: right;">
-          <strong>Total Horas Período: <span id="totalHorasPeriodo">0</span> hs</strong>
+        <h4 id="pdfTitulo" class="pdf-title"></h4>
+        
+        <div class="table-responsive">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Ingreso</th>
+                <th>Egreso</th>
+                <th>Atraso</th>
+                <th>Extras</th>
+                <th>Total Hs</th>
+                <th>9hs</th>
+              </tr>
+            </thead>
+            <tbody id="reporteBody">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="report-footer">
+          <p><strong>Total Horas Período:</strong> <span id="totalHorasPeriodo" class="highlight-total">0</span> hs</p>
         </div>
       </div>
 
-      <button class="btn-pdf" onclick="descargarPDF()">📥 Descargar PDF</button>
+      <button class="btn-pdf" onclick="descargarPDF()">📥 Descargar en PDF</button>
     </div>
   </div>
 
