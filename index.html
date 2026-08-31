@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Horario</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('registro')">⏱️ Fichaje</button>
+    <button class="tab-btn" onclick="switchTab('personal')">👥 Personal</button>
+  </nav>
+
+  <section id="tab-registro" class="tab-content active">
+    <div class="card shadow">
+      <h2>Control Horario de Personal</h2>
+      <p>Ingrese su DNI para marcar Ingreso o Egreso</p>
+      
+      <div class="input-group">
+        <input type="text" id="dniInput" placeholder="Ingrese DNI..." autofocus autocomplete="off">
+        <button onclick="registrarFichaje()">Registrar</button>
+      </div>
+
+      <div id="mensajeStatus" class="status-msg"></div>
+    </div>
+  </section>
+
+  <section id="tab-personal" class="tab-content">
+    <div class="card">
+      <div class="header-flex">
+        <h2>Listado de Personal</h2>
+        <span class="badge" id="totalPersonalBadge">Total: 0</span>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPersonalBody">
+          </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div id="modalReporte" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="cerrarModalReporte()">&times;</span>
+      <h3>Reporte de Horarios</h3>
+      <p id="reportePersonaNombre"></p>
+
+      <div class="filter-group">
+        <label>Desde: <input type="date" id="fechaDesde"></label>
+        <label>Hasta: <input type="date" id="fechaHasta"></label>
+        <button onclick="generarReporte()">Filtrar</button>
+      </div>
+
+      <div id="areaImpresion" class="report-container">
+        <h4 id="pdfTitulo"></h4>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora Ingreso</th>
+              <th>Hora Egreso</th>
+              <th>Total Horas</th>
+            </tr>
+          </thead>
+          <tbody id="reporteBody">
+            </tbody>
+        </table>
+        <div class="report-footer">
+          <strong>Total Horas Período: <span id="totalHorasPeriodo">0</span> hs</strong>
+        </div>
+      </div>
+
+      <button class="btn-pdf" onclick="descargarPDF()">📥 Descargar PDF</button>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
